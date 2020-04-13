@@ -1,0 +1,171 @@
+{
+  "project_info": {
+    "project_number": "457331537358",
+    "firebase_url": "https://loja-f7ade.firebaseio.com",
+    "project_id": "loja-f7ade",
+    "storage_bucket": "loja-f7ade.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457331537358:android:d99ad7eea9979200c8279f",
+        "android_client_info": {
+          "package_name": "com.rosiskiweber.agendei"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "457331537358-kcottv58t0fbrnstr6p5aptq5eprmkov.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXhb0DNpdOGiWcUznwbN7yFyuNCcYc53A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "457331537358-kcottv58t0fbrnstr6p5aptq5eprmkov.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "457331537358-2h4a5gf6a8m48qkbn7v22fupl7g56d4t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rosiskiweber.agendei"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457331537358:android:1bcbcd3e65182209c8279f",
+        "android_client_info": {
+          "package_name": "com.rosiskiweber.agendei_cliente"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "457331537358-kcottv58t0fbrnstr6p5aptq5eprmkov.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXhb0DNpdOGiWcUznwbN7yFyuNCcYc53A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "457331537358-kcottv58t0fbrnstr6p5aptq5eprmkov.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "457331537358-2h4a5gf6a8m48qkbn7v22fupl7g56d4t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rosiskiweber.agendei"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457331537358:android:2584ecd1875d6a61c8279f",
+        "android_client_info": {
+          "package_name": "com.rosiskiweber.agendei_leader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "457331537358-vsorfkthqcug02d6upeqatarcmae5him.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rosiskiweber.agendei_leader",
+            "certificate_hash": "ac18b8e9ef0c06636fedb3093b2c7b992114c959"
+          }
+        },
+        {
+          "client_id": "457331537358-kcottv58t0fbrnstr6p5aptq5eprmkov.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXhb0DNpdOGiWcUznwbN7yFyuNCcYc53A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "457331537358-kcottv58t0fbrnstr6p5aptq5eprmkov.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "457331537358-2h4a5gf6a8m48qkbn7v22fupl7g56d4t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rosiskiweber.agendei"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457331537358:android:636d844d695b36c7c8279f",
+        "android_client_info": {
+          "package_name": "com.rosiskiweber.flutter_agendei"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "457331537358-5amn6005li88klg6b1rg7j75f6e3213t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rosiskiweber.flutter_agendei",
+            "certificate_hash": "ac18b8e9ef0c06636fedb3093b2c7b992114c959"
+          }
+        },
+        {
+          "client_id": "457331537358-kcottv58t0fbrnstr6p5aptq5eprmkov.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXhb0DNpdOGiWcUznwbN7yFyuNCcYc53A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "457331537358-kcottv58t0fbrnstr6p5aptq5eprmkov.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "457331537358-2h4a5gf6a8m48qkbn7v22fupl7g56d4t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rosiskiweber.agendei"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

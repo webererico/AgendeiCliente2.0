@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>457331537358-ofa4r924s4e5hihfdu8p8moaolbv7je8.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.457331537358-ofa4r924s4e5hihfdu8p8moaolbv7je8</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>457331537358-5amn6005li88klg6b1rg7j75f6e3213t.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyA3_RogxEdZkB3X1gGLBeWP-Bv25SVX3os</string>
+	<key>GCM_SENDER_ID</key>
+	<string>457331537358</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.rosiskiweber.agendeiCliente</string>
+	<key>PROJECT_ID</key>
+	<string>loja-f7ade</string>
+	<key>STORAGE_BUCKET</key>
+	<string>loja-f7ade.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:457331537358:ios:09c234177b98c884c8279f</string>
+	<key>DATABASE_URL</key>
+	<string>https://loja-f7ade.firebaseio.com</string>
+</dict>
+</plist>
