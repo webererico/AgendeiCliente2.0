@@ -274,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   value: selectedGender,
                   isExpanded: false,
                   hint: new Text(
-                    'Genero                                                     ',
+                    'Genero                                                 ',
                     style: _fieldStyle,
                     textAlign: TextAlign.center,
                   ),

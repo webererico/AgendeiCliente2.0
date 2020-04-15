@@ -45,6 +45,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
         user = result;
       });
       print('Usuário logado: ' + user.toString());
+
     });
 
     super.initState();

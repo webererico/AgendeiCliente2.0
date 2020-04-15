@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final AuthResult authResult = await _auth.signInWithCredential(credential);
     final FirebaseUser user = authResult.user;
-
+    UserModel().isGooglein(user);
     print('entrou');
 
     assert(!user.isAnonymous);
@@ -391,7 +391,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _onSuccess() {
     Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
+        .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomeScreen()), (Route<dynamic> route)=> false);
   }
 
   void _onFail() {

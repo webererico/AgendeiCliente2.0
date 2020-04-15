@@ -33,8 +33,38 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   getUidUser() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
     if (user == null) return null;
+    DocumentSnapshot documentSnapshot = await Firestore.instance.collection('users').document(user.uid).collection('favorites').document(widget.uidCompany).get();
+    if(documentSnapshot.data == null ){
+      setState(() {
+        favorite = false;
+      });
+    }else{
+      setState(() {
+        favorite = true;
+      });
+    }
     return user.uid.toString();
   }
+
+//  Future checkFavorite() async {
+//    final DocumentSnapshot snap = await Firestore.instance
+//        .collection('users')
+//        .document(uidUser)
+//        .collection('favorites')
+//        .document(widget.uidCompany)
+//        .get();
+//    if (snap.data == null) {
+//      setState(() {
+//        favorite = false;
+//      });
+//    } else {
+//      setState(() {
+//        favorite = true;
+//      });
+//    }
+//
+//    print(favorite);
+//  }
 
   @override
   void initState() {
@@ -43,7 +73,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       uidUser = result;
       print(uidUser);
     });
-    checkFavorite();
+//    checkFavorite();
   }
 
   verifyUser() {
@@ -188,33 +218,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void _showSnack(BuildContext context, String text, MaterialColor cor) {
     _scaffold.currentState.showSnackBar(
       SnackBar(
-        content: Container(height: 60.0,child: Text(text)),
+        content: Container(height: 60.0, child: Text(text)),
         backgroundColor: cor,
         duration: Duration(seconds: 2),
       ),
     );
-  }
-
-  Future checkFavorite() async {
-    final DocumentSnapshot snap = await Firestore.instance
-        .collection('users')
-        .document(uidUser)
-        .collection('favorites')
-        .document(widget.uidCompany)
-        .get();
-    if (snap.data == null) {
-      setState(() {
-        favorite = false;
-      });
-    } else {
-      setState(() {
-        favorite = true;
-      });
-    }
-    setState(() {
-      favorite;
-    });
-    print(favorite);
   }
 
   Future changeFavorite() async {

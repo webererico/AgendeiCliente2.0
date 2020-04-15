@@ -55,12 +55,12 @@ class UserModel extends Model{
           }
         }
         print(signUpError);
-//        onFail();
         isLoading = false;
         notifyListeners();
 
       });
   }
+
 
   Future<String> uploadFile(File _image, String uid) async {
     print('carregando imagem');
@@ -79,12 +79,14 @@ class UserModel extends Model{
   }
 
 
+
+
   void signIn({ @required String email, @required String pass, @required VoidCallback onSuccess, @required VoidCallback onFail} ) async{
     isLoading = true;
     notifyListeners();
     _auth.signInWithEmailAndPassword(email: email, password: pass).then(
         (user) async{
-//          firebaseUser = user;
+          firebaseUser = user.user;
 
             await _loadCurrentUser();
             onSuccess();
@@ -99,20 +101,24 @@ class UserModel extends Model{
           print(signInError);
           isLoading = false;
           notifyListeners();
-
     });
-
   }
+
+
 
   void recoverPass(String email){
     _auth.sendPasswordResetEmail(email: email);
-
   }
+
   void signOut() async{
     await _auth.signOut();
     userData = Map();
     firebaseUser = null;
     notifyListeners();
+  }
+
+  void isGooglein(FirebaseUser googleUser){
+    firebaseUser = googleUser;
   }
 
   bool isLoggedIn(){
