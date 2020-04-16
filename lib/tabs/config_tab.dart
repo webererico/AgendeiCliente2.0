@@ -14,15 +14,22 @@ class _ConfigTabState extends State<ConfigTab> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          FlatButton.icon(
-              color: Colors.blueAccent,
-              icon: Icon(Icons.bug_report, color: Colors.white,),
-              label: Text('Reportar bug no app', style: TextStyle(color: Colors.white),),
-              onPressed: (){
-                print('botao reportar bug');
-                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>BugReportScreen()));
-              },
-          ),
+          Container(
+            padding: EdgeInsets.all(20.0),
+            width: MediaQuery.of(context).size.width,
+              child: FlatButton.icon(
+                color: Colors.blueAccent,
+                icon: Icon(Icons.bug_report, color: Colors.white,),
+                label: Text('Reportar bug no app',
+                  style: TextStyle(color: Colors.white),),
+                onPressed: () {
+                  print('botao reportar bug');
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => BugReportScreen()));
+                },
+              ),
+          )
+
         ],
       ),
     );
