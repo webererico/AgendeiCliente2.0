@@ -1,3 +1,4 @@
+import 'package:agendei_cliente/screens/bugReport_screen.dart';
 import 'package:flutter/material.dart';
 
 
@@ -9,6 +10,21 @@ class ConfigTab extends StatefulWidget {
 class _ConfigTabState extends State<ConfigTab> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          FlatButton.icon(
+              color: Colors.blueAccent,
+              icon: Icon(Icons.bug_report, color: Colors.white,),
+              label: Text('Reportar bug no app', style: TextStyle(color: Colors.white),),
+              onPressed: (){
+                print('botao reportar bug');
+                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>BugReportScreen()));
+              },
+          ),
+        ],
+      ),
+    );
   }
 }
