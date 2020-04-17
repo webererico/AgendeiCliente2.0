@@ -26,7 +26,7 @@ class UserModel extends Model{
     _loadCurrentUser();
   }
 
-  void signUp( { @required Map<String, dynamic> userData ,@required String pass,@required VoidCallback onSuccess,@required VoidCallback onFail , @required File image }){
+  void signUp( { @required Map<String, dynamic> userData ,@required String pass,@required VoidCallback onSuccess,@required VoidCallback onFail , @required File image,  }){
       isLoading = true; //FALA Q ESTA CARREGANDO
       notifyListeners(); // NOTIFICA A INTEREFACE
 
@@ -45,6 +45,7 @@ class UserModel extends Model{
           // pega os dados do usuario e salva no firebase pra usar
           await Firestore.instance.collection('users').document(firebaseUser.uid).updateData(img);
         }
+
         onSuccess();
         isLoading = false;
         notifyListeners();

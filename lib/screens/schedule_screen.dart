@@ -16,7 +16,6 @@ class ScheduleScreen extends StatefulWidget {
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
   final _scaffold = GlobalKey<ScaffoldState>();
-
   String uidUser;
   String selectedService;
   String selectedEmployee;
@@ -30,9 +29,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   String selectedCalendar;
   int lastMinutes = 0;
   int lastHours = 0;
-
   bool agendar = false;
-  int timeDurationService = 10;
+  int timeDurationService = 0;
+  bool ignore;
 
   getUidUser() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
@@ -105,6 +104,15 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       );
     } else {
       verifyClient();
+      verifyOrderDate();
+
+    }
+  }
+  void verifyOrderDate() async{
+    QuerySnapshot querySnapshot = await Firestore.instance.collection('companies').document(widget.uidCompany).collection('calendars').document(selectedCalendar).collection('orders').where('dateTime', isEqualTo: selectedDate).getDocuments();
+    if(querySnapshot.documents.length > 0){
+      _showSnack(context, 'Este horário não está disponível, por favor, solicite outro', Colors.red);
+    }else{
       saveOrder();
     }
   }
@@ -212,7 +220,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     _scaffold.currentState.showSnackBar(
       SnackBar(
         content: Container(height: 80.0, child: Text(text, style: TextStyle(fontSize: 14),)),
+        action: text == 'Este horário não está disponível, por favor, solicite outro'? SnackBarAction(
+            label: 'sugestão de horario',
+            textColor: Colors.white,
+            onPressed: (){
+              print('sugestao');
+            }
+        ) : '',
+
         backgroundColor: cor,
+
 //        duration: Duration(seconds: 4),
       ),
     );
@@ -274,6 +291,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     print('hora inicio calendario' + startHour.toIso8601String());
     print('hora termino calendario' + endHour.toIso8601String());
     setState(() {
+      ignore = querySnapshot.documents[0].data['ignore'];
       selectedCalendar = querySnapshot.documents[0].documentID;
     });
   }
@@ -305,18 +323,23 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           .document(calendar[i].data['uidEmployee'])
           .get();
       print('funcionario: ' + employee.data['fullName']);
-      print(employeeItems);
       if (!employeeItems.contains(employee.documentID)) {
-        employeeItems.add(DropdownMenuItem(
-          child: Text(employee.data['fullName']),
-          value: '${employee.documentID}',
-        ));
-        print(employeeItems.length);
+        setState(() {
+          employeeItems.add(DropdownMenuItem(
+            child: Text(employee.data['fullName']),
+            value: '${employee.documentID}',
+          ));
+          print(employeeItems.length);
+        });
+
       }
     }
-    setState(() {
-      employeeItems;
-    });
+    if(employeeItems.length == 1){
+      setState(() {
+        selectedEmployee = employeeItems[0].value;
+        findTimeDuration(selectedService);
+      });
+    }
   }
 
   showDataPicker() async {
@@ -388,18 +411,20 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
+
   findTimeDuration(String selectedService) async {
+    print('servico:::'+selectedService);
     final DocumentSnapshot service = await Firestore.instance
         .collection('companies')
         .document(widget.uidCompany)
         .collection('services')
         .document(selectedService)
         .get();
-    timeDurationService = int.parse(service.data['duration']);
-    print('tempo Duracao servico: ' + timeDurationService.toString());
+    print('duracao::::'+service.data['duration'].toString());
     setState(() {
-      timeDurationService;
+      timeDurationService = int.parse(service.data['duration']);
     });
+    print('tempo Duracao servico: ' + timeDurationService.toString());
   }
 
   @override
@@ -530,7 +555,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                         'servico selecionado: ' + serviceValue);
                                     selectedService = serviceValue;
                                   });
-                                  findTimeDuration(selectedService);
                                   getCalendars();
                                 },
                                 value: selectedService,
@@ -578,7 +602,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             onChanged: (employeeValue) {
                               setState(() {
                                 selectedEmployee = employeeValue;
+                                timeDurationService  = 0;
+                                findTimeDuration(selectedService);
                               });
+
                             },
                             value: selectedEmployee,
                             isExpanded: false,
@@ -656,19 +683,15 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 //                            int minute =
                               return _buildBottomPicker(
                                 CupertinoDatePicker(
-//                                minuteInterval: 5,
+                                minuteInterval: timeDurationService != 0 ? timeDurationService : 5,
                                   use24hFormat: true,
                                   mode: CupertinoDatePickerMode.time,
                                   initialDateTime: DateTime(
                                       selectedDate.year,
                                       selectedDate.month,
                                       selectedDate.day,
-                                      DateTime
-                                          .now()
-                                          .hour,
-                                      DateTime
-                                          .now()
-                                          .minute),
+                                      startHour.hour,
+                                      startHour.minute),
                                   maximumDate: endHour,
                                   minimumDate: startHour,
                                   onDateTimeChanged: (value) {

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:agendei_cliente/screens/phoneVerification_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:agendei_cliente/models/user_model.dart';
 import 'package:agendei_cliente/screens/home_screen.dart';
@@ -430,15 +431,16 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  void _onSuccess() {
+  void _onSuccess() async {
     _scaffoldKey.currentState.showSnackBar(SnackBar(
       content: Text('Usuário criado com sucesso!'),
       backgroundColor: Colors.green,
       duration: Duration(seconds: 2),
     ));
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
     Future.delayed(Duration(seconds: 2)).then((_) {
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => PhoneVerificationScreen()));
+          MaterialPageRoute(builder: (context) => PhoneVerificationScreen(uidUser:user.uid,)));
     });
   }
 

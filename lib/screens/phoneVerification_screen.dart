@@ -1,53 +1,82 @@
+//import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class PhoneVerificationScreen extends StatefulWidget {
+  String uidUser;
+  PhoneVerificationScreen({this.uidUser, Key key}): super(key : key);
   @override
   _PhoneVerificationScreenState createState() =>
       _PhoneVerificationScreenState();
 }
 
 class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
-  final phoneNumController = TextEditingController();
-  String _smsVerificationCode;
+  TextEditingController _smsCodeController = TextEditingController();
+  TextEditingController _phoneNumberController = TextEditingController();
+  String verificationId;
+  bool sent = false;
 
-  /// method to verify phone number and handle phone auth
-  _verifyPhoneNumber(BuildContext context) async {
-    String phoneNumber = "+1" + phoneNumController.text.toString();
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    await _auth.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        timeout: Duration(seconds: 5),
-        verificationCompleted: (authCredential) => _verificationComplete(authCredential, context),
-        verificationFailed: (authException) => _verificationFailed(authException, context),
-        codeAutoRetrievalTimeout: (verificationId) => _codeAutoRetrievalTimeout(verificationId),
-        // called when the SMS code is sent
-        codeSent: (verificationId, [code]) => _smsCodeSent(verificationId, [code]));
+  @override
+  void initState() {
+    super.initState();
   }
 
-  /// will get an AuthCredential object that will help with logging into Firebase.
-  _verificationComplete(AuthCredential authCredential, BuildContext context) {
-    FirebaseAuth.instance.signInWithCredential(authCredential).then((authResult) {
-      final snackBar = SnackBar(content: Text("Success!!! UUID is: " + authResult.user.uid));
-      Scaffold.of(context).showSnackBar(snackBar);
-    });
+  /// Sends the code to the specified phone number.
+  Future<void> _sendCodeToPhoneNumber() async {
+    final PhoneVerificationCompleted verificationCompleted = (AuthCredential phoneAuthCredential) {
+      print('sucesso');
+//      if(verificationId == _smsCodeController.text){
+//        setState(() {
+//
+//        });
+//        print('ok');
+//        Map<String, dynamic> userNumber = {
+//          'phoneFinal': _phoneNumberController.text
+//        };
+//        Firestore.instance.collection('users').document(widget.uidUser).updateData(userNumber);
+//      }
+
+    };
+
+    final PhoneVerificationFailed verificationFailed = (AuthException authException) {
+      setState(() {
+        print('Phone number verification failed. Code: ${authException.code}. Message: ${authException.message}');}
+      );
+    };
+
+    final PhoneCodeSent codeSent =
+        (String verificationId, [int forceResendingToken]) async {
+      this.verificationId = verificationId;
+      print("code sent to " + _phoneNumberController.text);
+      print('code: '+verificationId);
+      setState(() {
+        sent = true;
+      });
+    };
+
+    final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
+        (String verificationId) {
+      this.verificationId = verificationId;
+      print("time out");
+    };
+
+    await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: _phoneNumberController.text,
+        timeout: const Duration(seconds: 5),
+        verificationCompleted: verificationCompleted,
+        verificationFailed: verificationFailed,
+        codeSent: codeSent,
+        codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
   }
 
-  _smsCodeSent(String verificationId, List<int> code) {
-    // set the verification code so that we can use it to log the user in
-    _smsVerificationCode = verificationId;
+  void _signInWithPhoneNumber(String smsCode) async {
+    final AuthCredential credential = PhoneAuthProvider.getCredential(verificationId: verificationId, smsCode: smsCode);
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    AuthResult newUser = await FirebaseAuth.instance.signInWithCredential(credential);
+    print(newUser.user.uid);
+    user.linkWithCredential(credential);
+    print('numero verificado');
   }
-
-  _verificationFailed(AuthException authException, BuildContext context) {
-    final snackBar = SnackBar(content: Text("Exception!! message:" + authException.message.toString()));
-    Scaffold.of(context).showSnackBar(snackBar);
-  }
-
-  _codeAutoRetrievalTimeout(String verificationId) {
-    // set the verification code so that we can use it to log the user in
-    _smsVerificationCode = verificationId;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,20 +86,45 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             SizedBox(height: 50.0,),
             TextField(
-              controller: phoneNumController,
+              controller: _phoneNumberController,
               decoration: InputDecoration(
                   labelText: "Phone Number",
                   prefixText: "+55",
                   border: OutlineInputBorder()),
             ),
             FlatButton(
-              child: Text("Receber código"),
-              onPressed: () => _verifyPhoneNumber(context),
-            ), //FlatButton
+              child: sent == true ? Text('Reenviar código'): Text("Receber código"),
+              onPressed: () {
+                _phoneNumberController.text ='+55'+_phoneNumberController.text;
+                print(_phoneNumberController.text);
+                _sendCodeToPhoneNumber();
+              },
+            ),
+            Visibility(
+              visible: sent == true ? true : false,
+              child: TextField(
+                controller: _smsCodeController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder()
+                ),
+              ),
+            ),
+            Visibility(
+              visible: sent = true,
+              child: FlatButton(
+                child: Text("Acessar"),
+                onPressed: () {
+                   FirebaseAuth.instance.currentUser().then((value){
+                     print(value.uid);
+                   });
+                },
+              ),
+            ),
           ], // Widget
         ),
       ), // Column ,
