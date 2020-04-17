@@ -16,13 +16,17 @@ class ScheduleScreen extends StatefulWidget {
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
   final _scaffold = GlobalKey<ScaffoldState>();
+
   String uidUser;
   String selectedService;
   String selectedEmployee;
   bool favorite;
+  DateTime startHour;
+  DateTime endHour;
   List<DropdownMenuItem> employeeItems = [];
   DateTime selectedDate;
-  String selectedTime;
+  DateTime selectedTime;
+  bool time = false;
   String selectedCalendar;
   int lastMinutes = 0;
   int lastHours = 0;
@@ -33,38 +37,23 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   getUidUser() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
     if (user == null) return null;
-    DocumentSnapshot documentSnapshot = await Firestore.instance.collection('users').document(user.uid).collection('favorites').document(widget.uidCompany).get();
-    if(documentSnapshot.data == null ){
+    DocumentSnapshot documentSnapshot = await Firestore.instance
+        .collection('users')
+        .document(user.uid)
+        .collection('favorites')
+        .document(widget.uidCompany)
+        .get();
+    if (documentSnapshot.data == null) {
       setState(() {
         favorite = false;
       });
-    }else{
+    } else {
       setState(() {
         favorite = true;
       });
     }
     return user.uid.toString();
   }
-
-//  Future checkFavorite() async {
-//    final DocumentSnapshot snap = await Firestore.instance
-//        .collection('users')
-//        .document(uidUser)
-//        .collection('favorites')
-//        .document(widget.uidCompany)
-//        .get();
-//    if (snap.data == null) {
-//      setState(() {
-//        favorite = false;
-//      });
-//    } else {
-//      setState(() {
-//        favorite = true;
-//      });
-//    }
-//
-//    print(favorite);
-//  }
 
   @override
   void initState() {
@@ -84,7 +73,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             title:
-                Text('Para realizar um agendamento é necessário estár logado'),
+            Text('Para realizar um agendamento é necessário estár logado'),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
@@ -140,6 +129,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   void saveOrder() async {
     _showSnack(context, 'Verificando horários disponíveis...', Colors.orange);
+    Timestamp created_at = Timestamp.fromDate(DateTime.now());
     final Map<String, dynamic> scheduleData = {
       'uidClient': uidUser,
       'dateTime': Timestamp.fromDate(selectedDate).toDate(),
@@ -147,7 +137,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       'uidEmployee': selectedEmployee,
       'uidCalendar': selectedCalendar,
       'statusPayment': 'não pago',
-      'statusSchedule': 'agendado'
+      'statusSchedule': 'agendado',
+      'created_at': created_at
     };
     final Map<String, dynamic> scheduleUserData = {
       'uidCompany': widget.uidCompany,
@@ -156,7 +147,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       'uidEmployee': selectedEmployee,
       'uidCalendar': selectedCalendar,
       'statusPayment': 'não pago',
-      'statusSchedule': 'agendado'
+      'statusSchedule': 'agendado',
+      'created_at': created_at
     };
     print(scheduleUserData);
     final QuerySnapshot calendar = await Firestore.instance
@@ -186,6 +178,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
+        _scaffold.currentState.removeCurrentSnackBar();
         return AlertDialog(
           title: Text('Agendamento realizado com sucesso!'),
           content: SingleChildScrollView(
@@ -218,9 +211,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void _showSnack(BuildContext context, String text, MaterialColor cor) {
     _scaffold.currentState.showSnackBar(
       SnackBar(
-        content: Container(height: 60.0, child: Text(text)),
+        content: Container(height: 80.0, child: Text(text, style: TextStyle(fontSize: 14),)),
         backgroundColor: cor,
-        duration: Duration(seconds: 2),
+//        duration: Duration(seconds: 4),
       ),
     );
   }
@@ -256,6 +249,33 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         favorite = false;
       });
     }
+  }
+
+  void getOrderCalendar(String uidService, String uidEmployee) async {
+    QuerySnapshot querySnapshot = await Firestore.instance
+        .collection('companies')
+        .document(widget.uidCompany)
+        .collection('calendars')
+        .where(
+      'uidService',
+      isEqualTo: uidService,
+    )
+        .where('uidEmployee', isEqualTo: uidEmployee)
+        .limit(1)
+        .getDocuments();
+    List<String> startTime =
+    querySnapshot.documents[0].data['startTime'].toString().split(':');
+    List<String> endTime =
+    querySnapshot.documents[0].data['endTime'].toString().split(':');
+    startHour = DateTime(selectedDate.year, selectedDate.month,
+        selectedDate.day, int.parse(startTime[0]), int.parse(startTime[1]));
+    endHour = DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
+        int.parse(endTime[0]), int.parse(endTime[1]));
+    print('hora inicio calendario' + startHour.toIso8601String());
+    print('hora termino calendario' + endHour.toIso8601String());
+    setState(() {
+      selectedCalendar = querySnapshot.documents[0].documentID;
+    });
   }
 
   void getCalendars() async {
@@ -303,7 +323,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final DateTime data = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2030),
       builder: (BuildContext context, Widget child) {
         return Theme(
@@ -313,9 +333,59 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       },
     );
     setState(() {
+      selectedTime = null;
       selectedDate = data;
       print(selectedDate);
     });
+    if (selectedDate != null) {
+      getOrderCalendar(selectedService, selectedEmployee);
+    }
+  }
+
+  double _kPickerSheetHeight = 300.0;
+
+  Widget _buildBottomPicker(Widget picker) {
+    return Container(
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
+      height: _kPickerSheetHeight,
+      padding: const EdgeInsets.only(top: 6.0),
+      color: CupertinoColors.white,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              FlatButton(
+                child: Text(
+                  'cancelar',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                  textColor: Colors.blueAccent,
+                  child: Text(
+                    'confirmar',
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }
+              ),
+            ],
+          ),
+          Container(
+            width: 140,
+            height: 140,
+            child: picker,
+          )
+        ],
+      ),
+    );
   }
 
   findTimeDuration(String selectedService) async {
@@ -360,7 +430,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       body: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               FutureBuilder<DocumentSnapshot>(
@@ -374,7 +443,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         child: CircularProgressIndicator(),
                       );
                     List<String> name =
-                        snapshot.data['name'].toString().split(' ');
+                    snapshot.data['name'].toString().split(' ');
                     return Card(
                       color: Colors.grey.withAlpha(850),
                       margin: EdgeInsets.all(10),
@@ -426,10 +495,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         } else {
                           List<DropdownMenuItem> serviceItems = [];
                           for (int i = 0;
-                              i < snapshot.data.documents.length;
-                              i++) {
+                          i < snapshot.data.documents.length;
+                          i++) {
                             DocumentSnapshot service =
-                                snapshot.data.documents[i];
+                            snapshot.data.documents[i];
                             serviceItems.add(DropdownMenuItem(
                               child: Text(service.data['name']),
                               value: '${service.documentID}',
@@ -479,6 +548,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   ],
                 ),
               ),
+              SizedBox(
+                height: 40,
+              ),
               Visibility(
                 visible: selectedService == null ? false : true,
                 child: Padding(
@@ -521,75 +593,107 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   ),
                 ),
               ),
+              SizedBox(
+                height: 40,
+              ),
               Visibility(
                   visible: selectedEmployee == null ? false : true,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       Text(
                         'Escolha a data:',
                         style: TextStyle(color: Colors.black, fontSize: 22),
                       ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      selectedDate == null
+                          ? Text('')
+                          : Text(
+                        selectedDate.day.toString() +
+                            '/' +
+                            selectedDate.month.toString() +
+                            '/' +
+                            selectedDate.year.toString(),
+                        style: TextStyle(fontSize: 20.0),
+                      ),
                       IconButton(
                         icon: Icon(Icons.calendar_today),
                         onPressed: () {
+                          time = false;
                           showDataPicker();
                         },
                       ),
-//                      Visibility(
-//                        visible: selectedDate != null ? true : false,
-//                          child: Text( selectedDate.day != null ? selectedDate.day.toString(): '' +'/'+selectedDate.month.toString()+'/'+selectedDate.year.toString())
-//                      ),
                     ],
                   )),
+              SizedBox(
+                height: 40,
+              ),
               Visibility(
                 visible: selectedDate != null ? true : false,
-                child: Column(
+                child: Row(
                   children: <Widget>[
-                    Text(
-                      'Escolha o horário:',
-                      style: TextStyle(color: Colors.black, fontSize: 22),
-                    ),
+                    Text('Escolha o horário:',
+                        style: TextStyle(color: Colors.black, fontSize: 22)),
                     SizedBox(
-                      height: 100,
-                      width: 400,
-                      child: CupertinoTimerPicker(
-                        minuteInterval: 5,
-                        mode: CupertinoTimerPickerMode.hm,
-                        onTimerDurationChanged: (value) {
-                          if (lastHours != 0 || lastMinutes != 0) {
-                            setState(() {
-                              selectedDate = selectedDate.subtract(new Duration(
-                                  hours: lastHours, minutes: lastMinutes));
-                            });
-                          }
-                          setState(() {
-                            lastMinutes =
-                                (value.inMinutes - 60 * value.inHours);
-                            lastHours = value.inHours;
-                            print(selectedDate.hour);
-                            selectedDate = selectedDate.add(new Duration(
-                                hours: lastHours, minutes: lastMinutes));
-                            print(selectedDate);
-                            agendar = true;
-                          });
-                        },
-
-//                              onTimerDurationChanged: (value) {
-//                                setState(() {
-//                                  selectedTime = value.toString();
-//                                });
-//                              },
-                      ),
+                      width: 10,
                     ),
+                    selectedTime == null
+                        ? Text('')
+                        : Text(
+                      selectedTime.hour.toString() +
+                          ':' +
+                          selectedTime.minute.toString(),
+                      style: TextStyle(fontSize: 20.0),
+                    ),
+                    IconButton(
+                        icon: Icon(Icons.access_time),
+                        onPressed: () {
+                          showCupertinoModalPopup<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+//                            int minute =
+                              return _buildBottomPicker(
+                                CupertinoDatePicker(
+//                                minuteInterval: 5,
+                                  use24hFormat: true,
+                                  mode: CupertinoDatePickerMode.time,
+                                  initialDateTime: DateTime(
+                                      selectedDate.year,
+                                      selectedDate.month,
+                                      selectedDate.day,
+                                      DateTime
+                                          .now()
+                                          .hour,
+                                      DateTime
+                                          .now()
+                                          .minute),
+                                  maximumDate: endHour,
+                                  minimumDate: startHour,
+                                  onDateTimeChanged: (value) {
+                                    setState(() {
+                                      selectedDate = value;
+                                      selectedTime = value;
+                                      time = true;
+                                    });
+                                    print(time);
+                                    print('hora selecionada:' +
+                                        selectedTime.toIso8601String());
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        })
                   ],
                 ),
               ),
               SizedBox(
-                height: 30,
+                height: 40,
               ),
               Visibility(
-                  visible: agendar == true ? true : false,
+                  visible: selectedTime == null ? false : true,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[

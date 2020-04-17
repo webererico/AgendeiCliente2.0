@@ -44,6 +44,8 @@ dependencies:
   apple_sign_in: ^0.1.0
   awesome_card: ^1.1.0
 
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
