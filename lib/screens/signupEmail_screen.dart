@@ -196,7 +196,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Icon(
-                    Icons.edit,
+                    Icons.assignment_ind,
                     color: Colors.grey,
                   ),
                   SizedBox(

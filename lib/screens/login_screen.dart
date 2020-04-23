@@ -42,7 +42,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final AuthResult authResult = await _auth.signInWithCredential(credential);
     final FirebaseUser user = authResult.user;
-    UserModel().isGooglein(user);
     print('entrou');
 
     assert(!user.isAnonymous);
@@ -74,6 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
         print('novo usuário criado');
       }
     });
+    UserModel().isGooglein(user);
     return 'signInWithGoogle succeeded: $user';
   }
 

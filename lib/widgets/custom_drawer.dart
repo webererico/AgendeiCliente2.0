@@ -20,22 +20,30 @@ class _CustomDrawerState extends State<CustomDrawer> {
   FirebaseAuth auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
   bool user;
-  DocumentSnapshot documentSnapshot;
+  DocumentSnapshot userData;
 
   getUidUser() async {
     final FirebaseUser user = await auth.currentUser();
     if (user == null) {
       return false;
     } else if (user != null) {
-      documentSnapshot =
+      userData =
       await Firestore.instance.collection('users').document(user.uid).get();
       return true;
     }
   }
 
+  logOut() async{
+    UserModel().signOut();
+    signOutGoogle();
+    setState(() {
+      user = false;
+    });
+  }
+
   void signOutGoogle() async {
     await googleSignIn.signOut();
-    print("User Sign Out");
+    print("saiu google");
   }
 
   @override
@@ -86,12 +94,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 child: Stack(
                   children: <Widget>[
                     user == true
-                        ? documentSnapshot.data['img'] != null ? Positioned(
+                        ? userData.data['img'] != null ? Positioned(
                         left: 10,
                         child: CircleAvatar(
                           minRadius: 30,
                           backgroundImage:
-                          NetworkImage(documentSnapshot.data['img']),
+                          NetworkImage(userData.data['img']),
                         )): Text('')
                         : Text(''),
                     Positioned(
@@ -106,21 +114,25 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     Positioned(
                       left: 0.0,
                       bottom: 0.0,
-                      child: ScopedModelDescendant<UserModel>(
-                          builder: (context, child, model) {
-                            return Column(
+                      child:  Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
+                                user == true ?
                                 Text(
-                                  'Olá, ${!model.isLoggedIn() ? "" : (model
-                                      .userData['name'])}',
+                                  'Olá '+userData.data['name'] ,
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ):
+                                Text(
+                                  'Olá' ,
                                   style: TextStyle(
                                     fontSize: 20.0,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                !model.isLoggedIn()
-                                    ? GestureDetector(
+                                user == false ? GestureDetector(
                                   child: Text(
                                     'Entre ou cadastre-se >',
                                     style: TextStyle(
@@ -140,8 +152,8 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 )
                                     : Text('')
                               ],
-                            );
-                          }),
+                            ),
+
                     ),
                   ],
                 ),
@@ -175,22 +187,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   SizedBox(
                     width: 40.0,
                   ),
-                  ScopedModelDescendant<UserModel>(
-                    builder: (context, child, model) {
-                      return model.isLoggedIn()
+                user == true
                           ? FlatButton(
                         child: Icon(Icons.exit_to_app),
                         onPressed: () {
                           print('sair');
-                          model.signOut();
-                          setState(() {
-                            user = false;
-                          });
+                          logOut();
                         },
                       )
-                          : Text('');
-                    },
-                  ),
+                          : Text(''),
+
                 ],
               )
                   : Text(''),

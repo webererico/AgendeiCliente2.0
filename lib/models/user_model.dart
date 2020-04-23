@@ -88,7 +88,6 @@ class UserModel extends Model{
     _auth.signInWithEmailAndPassword(email: email, password: pass).then(
         (user) async{
           firebaseUser = user.user;
-
             await _loadCurrentUser();
             onSuccess();
             isLoading = false;
@@ -112,6 +111,7 @@ class UserModel extends Model{
   }
 
   void signOut() async{
+    print('saiu email');
     await _auth.signOut();
     userData = Map();
     firebaseUser = null;
@@ -119,7 +119,7 @@ class UserModel extends Model{
   }
 
   void isGooglein(FirebaseUser googleUser){
-    firebaseUser = googleUser;
+    firebaseUser =  googleUser;
   }
 
   bool isLoggedIn(){
