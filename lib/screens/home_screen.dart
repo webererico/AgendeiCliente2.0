@@ -35,12 +35,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void deleteUser() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
-//    final FirebaseStorage _storage =
-//    FirebaseStorage(storageBucket: 'gs://loja-f7ade.appspot.com');
-//    StorageReference storageReference =
-//    await _storage.ref().child('users/${user.uid.toString()}').delete();
-//    await storageReference.delete();
-//    Firestore.instance.collection('users').document(user.uid).delete();
     user.delete();
 
     Navigator.of(context)
@@ -70,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
               bottom: TabBar(
                 indicatorColor: Colors.white,
                 tabs: <Widget>[
+
                   Tab(
                     icon: Icon(Icons.grid_on),
                   ),

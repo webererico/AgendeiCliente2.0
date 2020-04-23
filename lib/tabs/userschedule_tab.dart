@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:agendei_cliente/screens/editSchedule_screen.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 class UserScheduleTab extends StatefulWidget {
   @override
@@ -12,6 +13,12 @@ class _UserScheduleTabState extends State<UserScheduleTab> {
   String uidUser;
   DateTime date;
   Timestamp time;
+  var serviceRate = 0.0;
+  var employeeRate = 0.0;
+
+
+
+
   @override
   void initState() {
     super.initState();
@@ -47,17 +54,125 @@ class _UserScheduleTabState extends State<UserScheduleTab> {
         });
   }
 
+  Widget evaluation(DocumentSnapshot order) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+//        _scaffold.currentState.removeCurrentSnackBar();
+        return StatefulBuilder(
+          builder: (context, setState){
+            return  AlertDialog(
+              title: Text('Avalie seu atendimento'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text('Como você avalia o serviço?'),
+                    SizedBox(height: 10,),
+                    SmoothStarRating(
+                      allowHalfRating: false,
+                      rating: serviceRate,
+                      size: 35,
+                      filledIconData: Icons.star,
+                      halfFilledIconData: Icons.star_half,
+                      defaultIconData: Icons.star_border,
+                      color: Colors.yellow,
+                      borderColor: Colors.yellow,
+                      starCount: 5,
+                      spacing: 2.0,
+                      onRatingChanged: (value) {
+                        setState(() {
+                          serviceRate = value;
+                        });
+                        print('nota serviço: '+serviceRate.toString());
+                      },
+                    ),
+                    Padding(padding: EdgeInsets.only(top: 20)),
+                    Text('E o atendimento pelo funcionário?'),
+                    SmoothStarRating(
+                      allowHalfRating: false,
+                      rating: employeeRate,
+                      size: 35,
+                      filledIconData: Icons.star,
+                      halfFilledIconData: Icons.star_half,
+                      defaultIconData: Icons.star_border,
+                      color: Colors.yellow,
+                      borderColor: Colors.yellow,
+                      starCount: 5,
+                      spacing: 2.0,
+                      onRatingChanged: (value) {
+                        setState(() {
+                          employeeRate = value;
+                        });
+                        print('nota funcionario:' +employeeRate.toString());
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                
+                FlatButton(
+                  child: Text(
+                    'Cancelar',
+                    style: TextStyle(color: Colors.blueAccent),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                FlatButton(
+                  child: Text(
+                    'Avaliar',
+                    style: TextStyle(color: Colors.green),
+                  ),
+                  onPressed: () {
+                    saveEvaluation(order);
+                    Navigator.of(context).pop();
+//                Navigator.of(context).push(
+//                    MaterialPageRoute(builder: (context) => HomeScreen()));
+                  },
+                ),
+              ],
+            );
+          },
+
+        );
+      },
+    );
+  }
+
+  saveEvaluation(DocumentSnapshot order) async{
+
+    Map<String, dynamic> evaluation = {
+      'serviceEvaluation': serviceRate,
+      'employeeEvaluation': employeeRate,
+    };
+    print('informando nota ao prestador...');
+    Firestore.instance.collection('companies').document(order.data['uidCompany']).collection('services').document(order.data['uidService']).collection('history').document(order.documentID).updateData(evaluation);
+    print('informado');
+    Firestore.instance.collection('users').document(uidUser).collection('orders').document(order.documentID).delete();
+    print('salvando order cliente em finish orders...');
+    Firestore.instance.collection('users').document(uidUser).collection('finishOrders').document(order.documentID).setData(order.data);
+    Firestore.instance.collection('users').document(uidUser).collection('finishOrders').document(order.documentID).updateData(evaluation);
+    print('salvo avaliacao');
+    setState(() {
+      serviceRate = 0;
+      employeeRate = 0 ;
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.withAlpha(850),
-      body: FutureBuilder<QuerySnapshot>(
-        future: Firestore.instance
+      body: StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance
             .collection('users')
             .document(uidUser)
             .collection('orders')
-            .where('statusSchedule', isEqualTo: 'agendado')
-            .getDocuments(),
+            .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(
@@ -73,10 +188,12 @@ class _UserScheduleTabState extends State<UserScheduleTab> {
                   padding: EdgeInsets.all(15.0),
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (context, index) {
-                    Timestamp value =snapshot.data.documents[index].data['dateTime'];
+                    Timestamp value =
+                        snapshot.data.documents[index].data['dateTime'];
                     date = DateTime.parse(value.toDate().toString());
                     return Card(
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           Flexible(
                             flex: 1,
@@ -102,7 +219,7 @@ class _UserScheduleTabState extends State<UserScheduleTab> {
                           Flexible(
                             flex: 1,
                             child: Container(
-                              padding: EdgeInsets.only(left: 30.0,top: 10),
+                              padding: EdgeInsets.only(left: 30.0, top: 10),
                               child: Column(
                                 children: <Widget>[
                                   FutureBuilder<DocumentSnapshot>(
@@ -121,7 +238,9 @@ class _UserScheduleTabState extends State<UserScheduleTab> {
                                               fontWeight: FontWeight.bold),
                                         );
                                       }),
-                                  SizedBox(height: 5,),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
                                   Row(
                                     children: <Widget>[
                                       Text(
@@ -129,9 +248,14 @@ class _UserScheduleTabState extends State<UserScheduleTab> {
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      Text(date.day.toString()+'/'+date.month.toString()+'/'+date.year.toString()),
+                                      Text(date.day.toString() +
+                                          '/' +
+                                          date.month.toString() +
+                                          '/' +
+                                          date.year.toString()),
                                     ],
                                   ),
+
                                   Row(
                                     children: <Widget>[
                                       Text(
@@ -139,34 +263,57 @@ class _UserScheduleTabState extends State<UserScheduleTab> {
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      Text(date.hour.toString()+':'+date.minute.toString()),
+                                      Text(date.hour.toString() +
+                                          ':' +
+                                          date.minute.toString()),
                                     ],
                                   ),
-
                                   companyData(
                                       snapshot.data.documents[index], index),
-                                  FlatButton.icon(
-                                    icon: Icon(Icons.edit),
-                                    label: Text('alterar'),
-                                    onPressed: () {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  EditScheduleScreen(
-                                                    uidCompany: snapshot
-                                                        .data
-                                                        .documents[index]
-                                                        .data['uidCompany'],
-                                                    uidOrder: snapshot
-                                                        .data
-                                                        .documents[index]
-                                                        .documentID,
-                                                    uidUser: uidUser,
-                                                    order: snapshot
-                                                        .data.documents[index],
-                                                  )));
-                                    },
-                                  )
+                                  snapshot.data.documents[index]
+                                              .data['statusSchedule'] ==
+                                          'finalizado'
+                                      ? FlatButton.icon(
+
+                                          color: Colors.orange,
+                                          icon: Icon(
+                                            Icons.stars,
+                                            color: Colors.white,
+                                          ),
+                                          label: Text(
+                                            'Avaliar',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          onPressed: () {
+                                            evaluation(snapshot.data.documents[index]);
+                                          },
+                                        )
+                                      : FlatButton.icon(
+                                          icon: Icon(Icons.edit),
+                                          label: Text('alterar'),
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        EditScheduleScreen(
+                                                          uidCompany:
+                                                              snapshot
+                                                                      .data
+                                                                      .documents[
+                                                                          index]
+                                                                      .data[
+                                                                  'uidCompany'],
+                                                          uidOrder: snapshot
+                                                              .data
+                                                              .documents[index]
+                                                              .documentID,
+                                                          uidUser: uidUser,
+                                                          order: snapshot.data
+                                                              .documents[index],
+                                                        )));
+                                          },
+                                        )
                                 ],
                               ),
                             ),

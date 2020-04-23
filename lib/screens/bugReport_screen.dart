@@ -98,16 +98,18 @@ class _BugReportScreenState extends State<BugReportScreen> {
   }
 
   void saveReport() async {
-    final uidDocument = DateTime.now();
+    DateTime now = DateTime.now();
+    Timestamp createdAt = Timestamp.fromDate(now);
     if (_formKey.currentState.validate()) {
       final FirebaseUser user = await FirebaseAuth.instance.currentUser();
       Map<String, dynamic> bugReport = {
         'uidUser': user.uid,
-        'nameUser': user.displayName,
-        'emailUser': user.email,
+        'name': user.displayName,
+        'email': user.email,
         'subject': _subjectController.text.toString(),
         'text:': _textController.text.toString(),
-        'notificar': check
+        'notificar': check,
+        'createdAt': createdAt
       };
 
       _scaffoldKey.currentState.showSnackBar(SnackBar(
@@ -119,8 +121,8 @@ class _BugReportScreenState extends State<BugReportScreen> {
         backgroundColor: Colors.orange,
       ));
       Firestore.instance
-          .collection('reports')
-          .document(uidDocument.toString())
+          .collection('userReports')
+          .document(now.toIso8601String())
           .setData(bugReport);
       Timer(
           Duration(seconds: 4),

@@ -11,19 +11,24 @@ class CompanyTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return InkWell(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => ScheduleScreen(company.documentID)));
       },
       child: Card(
+          margin: new EdgeInsets.only(top: 8.0, bottom: 5.0),
+          shape: RoundedRectangleBorder(
+              side: BorderSide(color: Colors.white70, width: 1),
+              borderRadius: BorderRadius.circular(10)),
           child: type == 'grid'
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     AspectRatio(
-                      aspectRatio: 1.2,
+                      aspectRatio: 1.3,
                       child: Image.network(
                         company.data['img'],
                         fit: BoxFit.cover,

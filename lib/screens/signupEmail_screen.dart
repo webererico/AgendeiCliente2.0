@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:agendei_cliente/screens/phoneVerification_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+//import 'package:agendei_cliente/screens/phoneVerification_screen.dart';
+//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:agendei_cliente/models/user_model.dart';
 import 'package:agendei_cliente/screens/home_screen.dart';
@@ -180,7 +180,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 controller: _adressController,
                 decoration: InputDecoration(
                     hintText: "Endereço", icon: Icon(Icons.place)),
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
                 validator: (text) {
                   if (text.isEmpty) {
                     return "Endereço inválido";
@@ -338,92 +338,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       }
                     }
                   }),
-//                SizedBox(
-//                  height: 44.0,
-//                  child: RaisedButton(
-//                    elevation: 5,
-//                    child: Text(
-//                      "Avançar",
-//                      style: TextStyle(fontSize: 18.0),
-//                    ),
-//                    textColor: Colors.white,
-//                    color: Theme.of(context).primaryColor,
-//                    onPressed: () {
-//                      if (_formKey.currentState.validate()) {
-//                        if (_passController.text == _rePassController.text) {
-//                          if (_image == null) {
-//                            showDialog<void>(
-//                                context: context,
-//                                barrierDismissible: false,
-//                                // user must tap button!
-//                                builder: (BuildContext context) {
-//                                  return AlertDialog(
-//                                    title: Text(
-//                                        'Você não escolheu uma imagem para perfil'),
-//                                    actions: <Widget>[
-//                                      FlatButton(
-//                                        onPressed: () {
-//                                          Navigator.of(context).pop();
-//                                        },
-//                                        child: Text('Voltar e escolher imagem'),
-//                                      ),
-//                                      FlatButton(
-//                                        onPressed: () {
-//                                          Navigator.of(context).pop();
-//                                          Map<String, dynamic> userData = {
-//                                            'name': _nameController.text +
-//                                                ' ' +
-//                                                _lastNameController.text,
-//                                            'email': _emailController.text,
-//                                            'adress': _adressController.text,
-//                                            'phone': _phoneController.text,
-//                                            'gender': selectedGender,
-//                                          };
-//
-//                                          print(userData);
-//                                          model.signUp(
-//                                              image: _image,
-//                                              userData: userData,
-//                                              pass: _passController.text,
-//                                              onSuccess: _onSuccess,
-//                                              onFail: _onFail );
-//                                        },
-//                                        child: Text('Ignorar'),
-//                                      ),
-//                                    ],
-//                                  );
-//                                });
-//                          } else {
-//                            Map<String, dynamic> userData = {
-//                              'name': _nameController.text +
-//                                  ' ' +
-//                                  _lastNameController.text,
-//                              'email': _emailController.text,
-//                              'adress': _adressController.text,
-//                              'phone': _phoneController.text,
-//                              'gender': selectedGender,
-//                            };
-//
-//                            print(userData);
-//                            model.signUp(
-//                                image: _image,
-//                                userData: userData,
-//                                pass: _passController.text,
-//                                onSuccess: _onSuccess,
-//                                onFail: _onFail
-//                            );
-//                          }
-//                        } else {
-//                          _scaffoldKey.currentState.showSnackBar(SnackBar(
-//                            content: Text('As senhas não são iguais'),
-//                            backgroundColor: Colors.black,
-//                            duration: Duration(seconds: 2),
-//                          ));
-//                        }
-//                      }
-//                    },
-//                  ),
-//                ),
             ],
           ),
         );
@@ -437,10 +351,18 @@ class _SignupScreenState extends State<SignupScreen> {
       backgroundColor: Colors.green,
       duration: Duration(seconds: 2),
     ));
-    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
+//    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
     Future.delayed(Duration(seconds: 2)).then((_) {
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => PhoneVerificationScreen(uidUser:user.uid,)));
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(),
+        ),
+//        MaterialPageRoute(
+//          builder: (context) => PhoneVerificationScreen(
+//            uidUser: user.uid,
+//          ),
+//        ),
+      );
     });
   }
 

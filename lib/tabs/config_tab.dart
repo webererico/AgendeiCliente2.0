@@ -1,4 +1,5 @@
 import 'package:agendei_cliente/screens/bugReport_screen.dart';
+import 'package:agendei_cliente/screens/history_screen.dart';
 import 'package:flutter/material.dart';
 
 
@@ -28,6 +29,21 @@ class _ConfigTabState extends State<ConfigTab> {
                       builder: (context) => BugReportScreen()));
                 },
               ),
+          ),
+          Container(
+            padding: EdgeInsets.all(20.0),
+            width: MediaQuery.of(context).size.width,
+            child: FlatButton.icon(
+              color: Colors.blueAccent,
+              icon: Icon(Icons.history, color: Colors.white,),
+              label: Text('Histórico de agendamentos',
+                style: TextStyle(color: Colors.white),),
+              onPressed: () {
+                print('botão histórico de agendamento');
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => HistoryScreen()));
+              },
+            ),
           )
 
         ],

@@ -43,6 +43,14 @@ dependencies:
   google_sign_in: ^4.3.0
   apple_sign_in: ^0.1.0
   awesome_card: ^1.1.0
+  flutter_launcher_icons: ^0.7.4
+  smooth_star_rating: ^1.0.4+2
+
+flutter_icons:
+  ios: true
+  android: true
+  image_path_ios: "lib/images/icon.png"
+  image_path_android: "lib/images/icon.png"
 
 
 

@@ -65,14 +65,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   verifyUser() {
+    print('verificando usuário...');
     if (uidUser == null) {
+      print('usuário não logado');
       return showDialog<void>(
         context: context,
         barrierDismissible: false, // user must tap button!
         builder: (BuildContext context) {
           return AlertDialog(
             title:
-            Text('Para realizar um agendamento é necessário estár logado'),
+                Text('Para realizar um agendamento é necessário estár logado'),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
@@ -103,21 +105,75 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         },
       );
     } else {
-      verifyClient();
-      verifyOrderDate();
-
+      print('usuário logado');
+      verifyOrderExist();
     }
   }
-  void verifyOrderDate() async{
-    QuerySnapshot querySnapshot = await Firestore.instance.collection('companies').document(widget.uidCompany).collection('calendars').document(selectedCalendar).collection('orders').where('dateTime', isEqualTo: selectedDate).getDocuments();
-    if(querySnapshot.documents.length > 0){
-      _showSnack(context, 'Este horário não está disponível, por favor, solicite outro', Colors.red);
-    }else{
-      saveOrder();
+
+  void verifyOrderExist() async {
+    print('verificando se horário dsiponível...');
+    QuerySnapshot querySnapshot = await Firestore.instance
+        .collection('companies')
+        .document(widget.uidCompany)
+        .collection('calendars')
+        .document(selectedCalendar)
+        .collection('orders')
+        .where('dateTime', isEqualTo: selectedDate)
+        .getDocuments();
+    if (querySnapshot.documents.length > 0) {
+      print('horário indisponível');
+      _showSnack(
+          context,
+          'Este horário não está disponível, por favor, solicite outro',
+          Colors.red);
+    } else {
+      print('horário disponível');
+      verifyDate();
+//      saveOrder();
+    }
+  }
+
+  void verifyDate() async {
+    print('validando data do agendamento ...');
+    DocumentSnapshot documentSnapshot = await Firestore.instance
+        .collection('companies')
+        .document(widget.uidCompany)
+        .collection('calendars')
+        .document(selectedCalendar)
+        .get();
+    if (documentSnapshot.exists) {
+      Timestamp calendarStart = documentSnapshot.data['startTime'];
+      Timestamp calendarEnd = documentSnapshot.data['endTime'];
+      DateTime start = DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+          calendarStart.toDate().hour,
+          calendarStart.toDate().minute);
+      DateTime end = DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+          calendarEnd.toDate().hour,
+          calendarEnd.toDate().minute);
+      if ((selectedDate.isAfter(start) ||
+              selectedDate.isAtSameMomentAs(start)) &&
+          selectedDate.isBefore(end)) {
+        print('data valida');
+        saveOrder();
+      } else {
+        print('data inválida');
+        _scaffold.currentState.removeCurrentSnackBar();
+        _showSnack(
+            context,
+            'Horário inválido. Informe um horário entre ${start.hour}:${start.minute} e ${end.hour}:${end.minute}.',
+            Colors.orange);
+      }
     }
   }
 
   void verifyClient() async {
+    print('verificando se já é cliente...');
     final DocumentSnapshot _documentSnapshot = await Firestore.instance
         .collection('companies')
         .document(widget.uidCompany)
@@ -125,19 +181,24 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         .document(uidUser)
         .get();
     if (!_documentSnapshot.exists) {
+      print('usuário nao é cliente...adicionando');
       final Map<String, dynamic> _data = {'uidUser': uidUser};
       Firestore.instance
           .collection('companies')
           .document(widget.uidCompany)
-          .collection('clientes')
+          .collection('clients')
           .document(uidUser)
           .setData(_data);
+    } else {
+      print('usuário já era cliente');
     }
   }
 
   void saveOrder() async {
+    verifyClient();
+    print('salvando ordem de servico...');
     _showSnack(context, 'Verificando horários disponíveis...', Colors.orange);
-    Timestamp created_at = Timestamp.fromDate(DateTime.now());
+    Timestamp createdAt = Timestamp.fromDate(DateTime.now());
     final Map<String, dynamic> scheduleData = {
       'uidClient': uidUser,
       'dateTime': Timestamp.fromDate(selectedDate).toDate(),
@@ -146,7 +207,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       'uidCalendar': selectedCalendar,
       'statusPayment': 'não pago',
       'statusSchedule': 'agendado',
-      'created_at': created_at
+      'createdAt': createdAt
     };
     final Map<String, dynamic> scheduleUserData = {
       'uidCompany': widget.uidCompany,
@@ -156,7 +217,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       'uidCalendar': selectedCalendar,
       'statusPayment': 'não pago',
       'statusSchedule': 'agendado',
-      'created_at': created_at
+      'createdAt': createdAt
     };
     print(scheduleUserData);
     final QuerySnapshot calendar = await Firestore.instance
@@ -182,6 +243,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           .document(documentReference.documentID)
           .setData(scheduleUserData);
     }
+    print('ordem salva... agendamento realizado');
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -219,18 +281,25 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void _showSnack(BuildContext context, String text, MaterialColor cor) {
     _scaffold.currentState.showSnackBar(
       SnackBar(
-        content: Container(height: 80.0, child: Text(text, style: TextStyle(fontSize: 14),)),
-        action: text == 'Este horário não está disponível, por favor, solicite outro'? SnackBarAction(
-            label: 'sugestão de horario',
-            textColor: Colors.white,
-            onPressed: (){
-              print('sugestao');
-            }
-        ) : '',
-
+        content: Container(
+            height: 80.0,
+            child: Text(
+              text,
+              style: TextStyle(fontSize: 14),
+            )),
+        action: text ==
+                'Este horário não está disponível, por favor, solicite outro'
+            ? SnackBarAction(
+                label: 'sugestão de horario',
+                textColor: Colors.white,
+                onPressed: () {
+                  print('sugestao');
+                })
+            : SnackBarAction(
+                onPressed: () {},
+                label: ' ',
+              ),
         backgroundColor: cor,
-
-//        duration: Duration(seconds: 4),
       ),
     );
   }
@@ -274,20 +343,18 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         .document(widget.uidCompany)
         .collection('calendars')
         .where(
-      'uidService',
-      isEqualTo: uidService,
-    )
+          'uidService',
+          isEqualTo: uidService,
+        )
         .where('uidEmployee', isEqualTo: uidEmployee)
         .limit(1)
         .getDocuments();
-    List<String> startTime =
-    querySnapshot.documents[0].data['startTime'].toString().split(':');
-    List<String> endTime =
-    querySnapshot.documents[0].data['endTime'].toString().split(':');
+    Timestamp _start = querySnapshot.documents[0].data['startTime'];
+    Timestamp _end = querySnapshot.documents[0].data['endTime'];
     startHour = DateTime(selectedDate.year, selectedDate.month,
-        selectedDate.day, int.parse(startTime[0]), int.parse(startTime[1]));
+        selectedDate.day, _start.toDate().hour, _start.toDate().minute);
     endHour = DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
-        int.parse(endTime[0]), int.parse(endTime[1]));
+        _end.toDate().hour, _end.toDate().minute);
     print('hora inicio calendario' + startHour.toIso8601String());
     print('hora termino calendario' + endHour.toIso8601String());
     setState(() {
@@ -331,10 +398,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           ));
           print(employeeItems.length);
         });
-
       }
     }
-    if(employeeItems.length == 1){
+    if (employeeItems.length == 1) {
       setState(() {
         selectedEmployee = employeeItems[0].value;
         findTimeDuration(selectedService);
@@ -369,10 +435,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Widget _buildBottomPicker(Widget picker) {
     return Container(
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
+      width: MediaQuery.of(context).size.width,
       height: _kPickerSheetHeight,
       padding: const EdgeInsets.only(top: 6.0),
       color: CupertinoColors.white,
@@ -397,8 +460,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();
-                  }
-              ),
+                  }),
             ],
           ),
           Container(
@@ -411,20 +473,17 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
-
   findTimeDuration(String selectedService) async {
-    print('servico:::'+selectedService);
     final DocumentSnapshot service = await Firestore.instance
         .collection('companies')
         .document(widget.uidCompany)
         .collection('services')
         .document(selectedService)
         .get();
-    print('duracao::::'+service.data['duration'].toString());
+    print('duracao: ' + service.data['duration'].toString());
     setState(() {
-      timeDurationService = int.parse(service.data['duration']);
+      timeDurationService = service.data['duration'];
     });
-    print('tempo Duracao servico: ' + timeDurationService.toString());
   }
 
   @override
@@ -468,7 +527,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         child: CircularProgressIndicator(),
                       );
                     List<String> name =
-                    snapshot.data['name'].toString().split(' ');
+                        snapshot.data['name'].toString().split(' ');
                     return Card(
                       color: Colors.grey.withAlpha(850),
                       margin: EdgeInsets.all(10),
@@ -520,10 +579,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         } else {
                           List<DropdownMenuItem> serviceItems = [];
                           for (int i = 0;
-                          i < snapshot.data.documents.length;
-                          i++) {
+                              i < snapshot.data.documents.length;
+                              i++) {
                             DocumentSnapshot service =
-                            snapshot.data.documents[i];
+                                snapshot.data.documents[i];
                             serviceItems.add(DropdownMenuItem(
                               child: Text(service.data['name']),
                               value: '${service.documentID}',
@@ -551,8 +610,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                   selectedDate = null;
                                   selectedTime = null;
                                   setState(() {
-                                    print(
-                                        'servico selecionado: ' + serviceValue);
+                                    print('servico selecionado: ' + serviceValue);
                                     selectedService = serviceValue;
                                   });
                                   getCalendars();
@@ -602,10 +660,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             onChanged: (employeeValue) {
                               setState(() {
                                 selectedEmployee = employeeValue;
-                                timeDurationService  = 0;
-                                findTimeDuration(selectedService);
-                              });
+                                timeDurationService = 0;
 
+                              });
+                              findTimeDuration(selectedService);
                             },
                             value: selectedEmployee,
                             isExpanded: false,
@@ -638,13 +696,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       selectedDate == null
                           ? Text('')
                           : Text(
-                        selectedDate.day.toString() +
-                            '/' +
-                            selectedDate.month.toString() +
-                            '/' +
-                            selectedDate.year.toString(),
-                        style: TextStyle(fontSize: 20.0),
-                      ),
+                              selectedDate.day.toString() +
+                                  '/' +
+                                  selectedDate.month.toString() +
+                                  '/' +
+                                  selectedDate.year.toString(),
+                              style: TextStyle(fontSize: 20.0),
+                            ),
                       IconButton(
                         icon: Icon(Icons.calendar_today),
                         onPressed: () {
@@ -669,11 +727,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     selectedTime == null
                         ? Text('')
                         : Text(
-                      selectedTime.hour.toString() +
-                          ':' +
-                          selectedTime.minute.toString(),
-                      style: TextStyle(fontSize: 20.0),
-                    ),
+                            selectedTime.hour.toString() +
+                                ':' +
+                                selectedTime.minute.toString(),
+                            style: TextStyle(fontSize: 20.0),
+                          ),
                     IconButton(
                         icon: Icon(Icons.access_time),
                         onPressed: () {
@@ -683,7 +741,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 //                            int minute =
                               return _buildBottomPicker(
                                 CupertinoDatePicker(
-                                minuteInterval: timeDurationService != 0 ? timeDurationService : 5,
+                                  minuteInterval: timeDurationService != 0
+                                      ? timeDurationService
+                                      : 5,
                                   use24hFormat: true,
                                   mode: CupertinoDatePickerMode.time,
                                   initialDateTime: DateTime(
