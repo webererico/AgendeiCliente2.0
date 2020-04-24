@@ -70,17 +70,23 @@ class CompanyTile extends StatelessWidget {
                   children: <Widget>[
                     Flexible(
                       flex: 1,
-                      child: Image.network(
-                        company.data['img'],
-                        fit: BoxFit.cover,
-                        width: 80,
-                        height: 80,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10.0),
+                          bottomLeft: Radius.circular(10.0),
+                        ),
+                        child: Image.network(
+                          company.data['img'],
+                          fit: BoxFit.fill,
+                          width: 80,
+                          height: 80,
+                        ),
                       ),
                     ),
                     Flexible(
-                      flex: 1,
+                      flex: 2,
                       child: Container(
-                        padding: EdgeInsets.all(8.0),
+                        padding: EdgeInsets.only(top: 10, left: 40.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
