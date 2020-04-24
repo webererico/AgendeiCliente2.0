@@ -28,7 +28,6 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
           if (!snapshot.hasData) {
             return Scaffold(
               appBar: AppBar(
-                backgroundColor: Colors.blueAccent,
               ),
               body: Container(
 
