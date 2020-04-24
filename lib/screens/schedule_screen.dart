@@ -713,7 +713,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ),
               ),
               SizedBox(
-                height: 40,
+                height: 20,
               ),
               Visibility(
                   visible: selectedEmployee == null ? false : true,
@@ -747,7 +747,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     ],
                   )),
               SizedBox(
-                height: 40,
+                height: 20,
               ),
               Visibility(
                 visible: selectedDate != null ? true : false,
@@ -807,7 +807,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ),
               ),
               SizedBox(
-                height: 40,
+                height: 10,
               ),
               Visibility(
                   visible: selectedTime == null ? false : true,

@@ -273,18 +273,23 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
             ),
             Column(
               children: <Widget>[
-                Text(
-                  'Alterar o horário: ',
-                  style: TextStyle(color: Colors.black, fontSize: 22),
+                Row(
+                  children: [
+                    Text(
+                      'Alterar o horário: ',
+                      style: TextStyle(color: Colors.black, fontSize: 22),
+                    ),
+                    date != null ?
+                    Text(
+                      date.hour.toString() + ':' + date.minute.toString(),
+                      style: TextStyle(color: Colors.black, fontSize: 22),
+                    ): Text(''),
+                  ],
                 ),
-                date != null ?
-                Text(
-                  date.hour.toString() + ':' + date.minute.toString(),
-                  style: TextStyle(color: Colors.black, fontSize: 22),
-                ): Text(''),
+
                 SizedBox(
                   height: 100,
-                  width: 400,
+                  width: 300,
                   child: CupertinoTimerPicker(
                     minuteInterval: 30,
                     mode: CupertinoTimerPickerMode.hm,
@@ -305,7 +310,7 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
               ],
             ),
             SizedBox(
-              height: 30,
+              height: 10,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,

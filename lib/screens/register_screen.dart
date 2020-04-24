@@ -101,7 +101,7 @@ class _RegisterPage extends State<RegisterScreen> {
                         alignment: Alignment.center,
                         child: Column(
                           children: <Widget>[
-                            Image.asset('lib/images/logo_thin.png', scale: 6,),
+                            Image.asset('lib/images/logo_thin.png', scale: 7,),
 //                            Icon(
 //                              Icons.calendar_today,
 //                              size: 50,

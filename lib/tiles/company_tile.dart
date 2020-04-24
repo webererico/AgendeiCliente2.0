@@ -17,8 +17,8 @@ class CompanyTile extends StatelessWidget {
             builder: (context) => ScheduleScreen(company.documentID)));
       },
       child: Card(
-          elevation: 4.0,
-          margin: new EdgeInsets.only(top: 8.0, bottom: 5.0),
+          elevation: 3.0,
+          margin: new EdgeInsets.only(top: 5.0, bottom: 5.0, left: 5, right: 5),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: type == 'grid'
