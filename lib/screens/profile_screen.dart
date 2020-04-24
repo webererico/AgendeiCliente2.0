@@ -344,7 +344,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
                 label: Text('Atualizar'),
                 icon: Icon(Icons.save),
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: Color.fromARGB(255, 15, 76, 129),
               ),
             )
           ],

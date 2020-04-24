@@ -52,12 +52,12 @@ class _PaymentTabState extends State<PaymentTab> {
         .document(uidUser)
         .collection('payments')
         .getDocuments();
-    if(querySnapshot.documents.length ==0){
+    if (querySnapshot.documents.length == 0) {
       setState(() {
         existPayment = false;
         print(existPayment);
       });
-    }else{
+    } else {
       if (querySnapshot.documents[0].data != null) {
         setState(() {
           uidPayment = expiryDate = querySnapshot.documents[0].documentID;
@@ -69,10 +69,8 @@ class _PaymentTabState extends State<PaymentTab> {
           _expiryDate.text = querySnapshot.documents[0].data['expiryDate'];
           _cvv.text = querySnapshot.documents[0].data['cvv'];
         });
-
       }
     }
-
   }
 
   void updatePayment() async {
@@ -87,14 +85,14 @@ class _PaymentTabState extends State<PaymentTab> {
         .document(uidUser)
         .collection('payments')
         .getDocuments();
-    if(querySnapshot.documents.length == 0){
+    if (querySnapshot.documents.length == 0) {
       Firestore.instance
           .collection('users')
           .document(uidUser)
           .collection('payments')
           .document()
           .setData(userPayment);
-    }else {
+    } else {
       Firestore.instance
           .collection('users')
           .document(uidUser)
@@ -108,10 +106,11 @@ class _PaymentTabState extends State<PaymentTab> {
     });
   }
 
-  void deletePayment() async{
-    print('pagamento de uid apagado: '+ uidPayment);
-    print('user: '+ uidUser);
-    await Firestore.instance.collection('users').document(uidUser).collection('payments').document(uidPayment).delete();
+  void deletePayment() async {
+    print('pagamento de uid apagado: ' + uidPayment);
+    print('user: ' + uidUser);
+    await Firestore.instance.collection('users').document(uidUser).collection(
+        'payments').document(uidPayment).delete();
     setState(() {
       uidPayment = null;
       existPayment = false;
@@ -160,7 +159,7 @@ class _PaymentTabState extends State<PaymentTab> {
                   ),
                   child: TextFormField(
                     controller: _cardNumber,
-                    decoration: InputDecoration(hintText: "Card Number"),
+                    decoration: InputDecoration(hintText: "Número do cartão"),
                     maxLength: 19,
                     onChanged: (value) {
                       setState(() {
@@ -175,7 +174,7 @@ class _PaymentTabState extends State<PaymentTab> {
                   ),
                   child: TextFormField(
                     controller: _expiryDate,
-                    decoration: InputDecoration(hintText: "Card Expiry"),
+                    decoration: InputDecoration(hintText: "Validade"),
                     maxLength: 5,
                     onChanged: (value) {
                       setState(() {
@@ -190,7 +189,7 @@ class _PaymentTabState extends State<PaymentTab> {
                   ),
                   child: TextFormField(
                     controller: _cardHolderName,
-                    decoration: InputDecoration(hintText: "Card Holder Name"),
+                    decoration: InputDecoration(hintText: "Propriétário do cartão"),
                     onChanged: (value) {
                       setState(() {
                         _cardHolderName.text = value;
@@ -229,7 +228,7 @@ class _PaymentTabState extends State<PaymentTab> {
                   },
                   label: Text('Editar cartão'),
                   icon: Icon(Icons.edit),
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: Color.fromARGB(255, 15, 76, 129),
                 ),
               ),
               Visibility(
@@ -238,7 +237,8 @@ class _PaymentTabState extends State<PaymentTab> {
                   heroTag: 'FloatingActionUpdatePayment',
                   onPressed: () {
                     Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text('atualizando dados de pagamento', style: TextStyle(color: Colors.white),),
+                      content: Text('atualizando dados de pagamento',
+                        style: TextStyle(color: Colors.white),),
                       duration: Duration(seconds: 3),
                       backgroundColor: Colors.orange,
                       elevation: 1.0,
@@ -250,7 +250,7 @@ class _PaymentTabState extends State<PaymentTab> {
                   },
                   label: Text('Atualizar'),
                   icon: Icon(Icons.save),
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: Color.fromARGB(255, 15, 76, 129)
                 ),
               ),
               Visibility(
@@ -259,7 +259,8 @@ class _PaymentTabState extends State<PaymentTab> {
                   heroTag: 'FloatingActionDeletePayment',
                   onPressed: () {
                     Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text('Cartao apagado com sucesso', style: TextStyle(color: Colors.white),),
+                      content: Text('Cartao apagado com sucesso',
+                        style: TextStyle(color: Colors.white),),
                       duration: Duration(seconds: 3),
                       backgroundColor: Colors.orange,
                       elevation: 1.0,
@@ -268,29 +269,41 @@ class _PaymentTabState extends State<PaymentTab> {
                     setState(() {
                       existPayment = false;
                     });
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>HomeScreen()));
-
-
+                    Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => HomeScreen()));
                   },
                   label: Text('Apagar'),
                   icon: Icon(Icons.delete),
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: Color.fromARGB(255, 15, 76, 129),
                 ),
               ),
               Visibility(
-                visible: canDelete == true ? false : (existPayment = true ? true : false),
+                visible: canDelete == true ? false : (
+                    existPayment = true ? true : false),
                 child: FloatingActionButton.extended(
                   onPressed: () {
                     print('entrou pagina historico');
+                    _showToast(context);
                   },
                   label: Text('Histórico'),
                   icon: Icon(Icons.history),
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: Color.fromARGB(255, 15, 76, 129),
                 ),
               )
             ],
           )
         ],
+      ),
+    );
+  }
+
+  void _showToast(BuildContext context) {
+    final scaffold = Scaffold.of(context);
+    scaffold.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.orange,
+        content: const Text(
+          'Nenhuma transação registrada', style: TextStyle(color: Colors.white),),
       ),
     );
   }

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:agendei_cliente/models/user_model.dart';
 import 'package:agendei_cliente/screens/login_screen.dart';
 import 'package:agendei_cliente/tiles/drawer_tile.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -61,14 +60,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
 
   @override
   Widget build(BuildContext context) {
-
+    Color text (){
+      return Colors.white;
+    }
     Widget _buildDrawerBack() =>
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color.fromARGB(200, 87, 39, 239),
-                Color.fromARGB(120, 66, 90, 242),
+                Color.fromARGB(255, 15, 76, 129),
+                Color.fromARGB(255, 15, 76, 129),
 //                Colors.blueAccent,
 //                Color.fromARGB(255, 203, 236, 241),
 //                Color.fromARGB(255, 203, 236, 241),
@@ -89,13 +90,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
             children: <Widget>[
               Container(
                 margin: EdgeInsets.only(bottom: 8.0),
-                padding: EdgeInsets.fromLTRB(0.0, 30.0, 16.0, 8.0),
+                padding: EdgeInsets.fromLTRB(0.0, 0.0 , 16.0, 8.0),
                 height: 170.0,
                 child: Stack(
                   children: <Widget>[
                     user == true
                         ? userData.data['img'] != null ? Positioned(
-                        left: 10,
+                        left: 5,
+                        top: 50,
                         child: CircleAvatar(
                           minRadius: 30,
                           backgroundImage:
@@ -103,13 +105,9 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         )): Text('')
                         : Text(''),
                     Positioned(
-                      top: 1.0,
-                      right: user == true ? 12.0 : 60,
-                      child: Text(
-                        'Agendei',
-                        style: TextStyle(
-                            fontSize: 38.0, fontWeight: FontWeight.bold),
-                      ),
+                      top: user == true ? 30 : 10,
+                      right: user == true ? 1.0 : 30,
+                      child: user == true ? Image.asset('lib/images/logo_thin.png', scale: 11,): Image.asset('lib/images/logo_thin.png', scale: 9,),
                     ),
                     Positioned(
                       left: 0.0,
@@ -123,22 +121,22 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   style: TextStyle(
                                     fontSize: 20.0,
                                     fontWeight: FontWeight.bold,
+                                    color: text(),
                                   ),
                                 ):
-                                Text(
-                                  'Olá' ,
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+//                                Text(
+//                                  'Olá' ,
+//                                  style: TextStyle(
+//                                    fontSize: 20.0,
+//                                    fontWeight: FontWeight.bold,
+//                                    color: text(),
+//                                  ),
+//                                ),
                                 user == false ? GestureDetector(
                                   child: Text(
                                     'Entre ou cadastre-se >',
                                     style: TextStyle(
-                                        color: Theme
-                                            .of(context)
-                                            .primaryColor,
+                                        color: text(),
                                         fontSize: 20.0,
                                         fontWeight: FontWeight.bold),
                                   ),
@@ -183,13 +181,13 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   DrawerTile(
-                      Icons.person, "Perfil", widget.pageController, 6),
+                      Icons.person, "Perfil", widget.pageController, 6) ,
                   SizedBox(
                     width: 40.0,
                   ),
                 user == true
                           ? FlatButton(
-                        child: Icon(Icons.exit_to_app),
+                        child: Icon(Icons.exit_to_app, color: text(),),
                         onPressed: () {
                           print('sair');
                           logOut();

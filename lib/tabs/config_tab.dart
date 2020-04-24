@@ -37,9 +37,9 @@ class _ConfigTabState extends State<ConfigTab> {
           Card(
             margin: new EdgeInsets.all(10),
             shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.black, width: 2),
-                borderRadius: BorderRadius.circular(10)),
-            color: Colors.blueAccent,
+                side: BorderSide(color: Colors.black, width: 1),
+                borderRadius: BorderRadius.circular(5)),
+            color: Color.fromARGB(255, 15, 76, 129),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -55,9 +55,9 @@ class _ConfigTabState extends State<ConfigTab> {
                         if (snapshot.data['img'] != null) {
                           return Image.network(
                             snapshot.data['img'],
-                            fit: BoxFit.cover,
-                            width: 130,
-                            height: 130,
+                            fit: BoxFit.fill,
+                            width: 140,
+                            height: 140,
                           );
                         } else {
                           return Container();
@@ -86,7 +86,7 @@ class _ConfigTabState extends State<ConfigTab> {
             padding: EdgeInsets.only(left: 30.0, right: 30.0, top: 25.0 ),
             width: MediaQuery.of(context).size.width,
             child: FlatButton.icon(
-              color: Colors.blueAccent,
+              color: Color.fromARGB(255, 15, 76, 129),
               icon: Icon(
                 Icons.bug_report,
                 color: Colors.white,
@@ -106,7 +106,7 @@ class _ConfigTabState extends State<ConfigTab> {
             padding: EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0 ),
             width: MediaQuery.of(context).size.width,
             child: FlatButton.icon(
-              color: Colors.blueAccent,
+              color: Color.fromARGB(255, 15, 76, 129),
               icon: Icon(
                 Icons.history,
                 color: Colors.white,

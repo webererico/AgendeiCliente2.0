@@ -9,6 +9,7 @@ class EditScheduleScreen extends StatefulWidget {
   final String uidUser;
   final DocumentSnapshot order;
 
+
   EditScheduleScreen(
       {this.uidCompany,
       this.uidOrder,
@@ -33,7 +34,7 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
   DateTime time;
   int lastMinutes = 0;
   int lastHours =0 ;
-  var now = new DateTime.now();
+  DateTime today = DateTime.now();
   int timeDurationService = 10;
   QuerySnapshot calendars;
   DocumentSnapshot orderCompany;
@@ -93,26 +94,23 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
     });
   }
 
-  void deleteOrder() {
-    Center(
-      child: CircularProgressIndicator(),
-    );
-    Firestore.instance
-        .collection('companies')
-        .document(widget.uidCompany)
-        .collection('calendars')
-        .document(calendars.documents[0].documentID)
-        .collection('orders')
-        .document(widget.order.documentID)
-        .delete();
-    Firestore.instance
-        .collection('users')
-        .document(widget.uidUser)
-        .collection('orders')
-        .document(widget.order.documentID)
-        .delete();
-    print('agendamento apagado');
-  }
+   void deleteOrder() {
+      Firestore.instance
+          .collection('companies')
+          .document(widget.uidCompany)
+          .collection('calendars')
+          .document(calendars.documents[0].documentID)
+          .collection('orders')
+          .document(widget.order.documentID)
+          .delete();
+      Firestore.instance
+          .collection('users')
+          .document(widget.uidUser)
+          .collection('orders')
+          .document(widget.order.documentID)
+          .delete();
+      print('agendamento apagado');
+    }
 
   @override
   void initState() {
@@ -125,7 +123,6 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
         centerTitle: true,
         title: FutureBuilder(
             future: Firestore.instance
@@ -257,14 +254,14 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
                   'Alterar a data: ',
                   style: TextStyle(color: Colors.black, fontSize: 22),
                 ),
-                Text(
+                date != null ? Text(
                   date.day.toString() +
                       '/' +
                       date.month.toString() +
                       '/' +
                       date.year.toString(),
                   style: TextStyle(color: Colors.black, fontSize: 22),
-                ),
+                ): Text(''),
 //                Text(selectedDate),
                 IconButton(
                   icon: Icon(Icons.calendar_today),
@@ -320,18 +317,43 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
                   icon: Icon(Icons.cancel),
                   elevation: 2.0,
                   onPressed: () {
-//                    if(int.parse(selectedDate.split('-')[0]) - now.day)
-
-                    deleteOrder();
-
-                    setState(() {
+                    print('calculando diferenca de dias');
+                    DateTime orderDate = selectedDateTime.toDate();
+                    Duration difference = orderDate.difference(today);
+                    print('diferenca: '+difference.inDays.toString());
+                    if(difference.inDays >3) {
+                      print('diferenca maiior que 3 dias ... pode apagar');
+                      deleteOrder();
                       Navigator.of(context).pop(context);
-                    });
-
-//                    if((int.parse(selectedTime.split('-').elementAt(2)) - now.day) < 3){
-//                      print('menor que tres dias');
-//                    }
-                    print('cancelando agendamento');
+                    }else {
+                      print('diferenca menor que 3 dias ... NAO pode apagar');
+                      showDialog<void>(
+                        context: context,
+                        barrierDismissible: false, // user must tap button!
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title:
+                            Text('Não é possivel cancelar'),
+                            content: SingleChildScrollView(
+                              child: ListBody(
+                                children: <Widget>[
+                                  Text(
+                                      'Infelizmente, o prazo para cancelamento deste serviço por meio do Agendei já foi ultrapassado. Para cancelar entre em contato com o estabelecimento'),
+                                ],
+                              ),
+                            ),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: Text('Ok'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
                   },
                 ),
                 FloatingActionButton.extended(

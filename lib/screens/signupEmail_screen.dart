@@ -84,7 +84,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 child: IconButton(
                                   icon: Icon(
                                     Icons.photo_camera,
-                                    color: Colors.blueAccent,
+                                    color: Color.fromARGB(255, 15, 76, 129),
                                   ),
                                   onPressed: () {
                                     print('tirar foto');
@@ -263,7 +263,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               FloatingActionButton.extended(
                   label: Text('Avançar'),
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: Color.fromARGB(255, 15, 76, 129),
                   icon: Icon(Icons.arrow_forward),
                   onPressed: () {
                     if (_formKey.currentState.validate()) {

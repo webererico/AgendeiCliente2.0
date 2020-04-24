@@ -73,8 +73,8 @@ class _RegisterPage extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Color _cor1 = Color.fromARGB(255, 25, 25, 112);
-    final Color _cor2 = Color.fromARGB(255, 79, 79, 216);
+    final Color _cor1 = Color.fromARGB(255, 15, 76, 129);
+    final Color _cor2 = Color.fromARGB(255, 15, 76, 129);
     final _formKey = GlobalKey<FormState>();
     return Scaffold(
       body: Container(
@@ -101,18 +101,19 @@ class _RegisterPage extends State<RegisterScreen> {
                         alignment: Alignment.center,
                         child: Column(
                           children: <Widget>[
-                            Icon(
-                              Icons.calendar_today,
-                              size: 50,
-                              color: Colors.white,
-                            ),
-                            Text(
-                              'Agendei',
-                              style: TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            )
+                            Image.asset('lib/images/logo_thin.png', scale: 6,),
+//                            Icon(
+//                              Icons.calendar_today,
+//                              size: 50,
+//                              color: Colors.white,
+//                            ),
+//                            Text(
+//                              'Agendei',
+//                              style: TextStyle(
+//                                  fontSize: 20.0,
+//                                  fontWeight: FontWeight.bold,
+//                                  color: Colors.white),
+//                            )
                           ],
                         )),
                     Spacer(),

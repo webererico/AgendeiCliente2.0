@@ -30,8 +30,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   int lastMinutes = 0;
   int lastHours = 0;
   bool agendar = false;
+  bool checkSameTie;
   int timeDurationService = 0;
   bool ignore;
+  Color hexToColor() => new Color.fromARGB(255, 15, 76, 129);
 
   getUidUser() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
@@ -111,24 +113,29 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   void verifyOrderExist() async {
-    print('verificando se horário dsiponível...');
-    QuerySnapshot querySnapshot = await Firestore.instance
-        .collection('companies')
-        .document(widget.uidCompany)
-        .collection('calendars')
-        .document(selectedCalendar)
-        .collection('orders')
-        .where('dateTime', isEqualTo: selectedDate)
-        .getDocuments();
-    if (querySnapshot.documents.length > 0) {
-      print('horário indisponível');
-      _showSnack(
-          context,
-          'Este horário não está disponível, por favor, solicite outro',
-          Colors.red);
-    } else {
+    if (checkSameTie == true) {
       print('horário disponível');
       verifyDate();
+    } else {
+      print('verificando se horário dsiponível...');
+      QuerySnapshot querySnapshot = await Firestore.instance
+          .collection('companies')
+          .document(widget.uidCompany)
+          .collection('calendars')
+          .document(selectedCalendar)
+          .collection('orders')
+          .where('dateTime', isEqualTo: selectedDate)
+          .getDocuments();
+      if (querySnapshot.documents.length > 0) {
+        print('horário indisponível');
+        _showSnack(
+            context,
+            'Este horário não está disponível, por favor, solicite outro.',
+            Colors.red);
+      } else {
+        print('horário disponível');
+        verifyDate();
+      }
 //      saveOrder();
     }
   }
@@ -287,18 +294,19 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               text,
               style: TextStyle(fontSize: 14),
             )),
-        action: text ==
-                'Este horário não está disponível, por favor, solicite outro'
-            ? SnackBarAction(
-                label: 'sugestão de horario',
-                textColor: Colors.white,
-                onPressed: () {
-                  print('sugestao');
-                })
-            : SnackBarAction(
-                onPressed: () {},
-                label: ' ',
-              ),
+//        action: text ==
+//                'Este horário não está disponível, por favor, solicite outro.'
+//            ? SnackBarAction(
+//                label: 'sugestão de horario',
+//                textColor: Colors.white,
+//                onPressed: () {
+//                  print('sugestao');
+//                  verifyFreeDate();
+//                })
+//            : SnackBarAction(
+//                onPressed: () {},
+//                label: ' ',
+//              ),
         backgroundColor: cor,
       ),
     );
@@ -359,8 +367,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     print('hora termino calendario' + endHour.toIso8601String());
     setState(() {
       ignore = querySnapshot.documents[0].data['ignore'];
+      checkSameTie = querySnapshot.documents[0].data['check'];
       selectedCalendar = querySnapshot.documents[0].documentID;
     });
+    print('calendário permite agendamento ao mesmo tempo? ' +
+        checkSameTie.toString());
   }
 
   void getCalendars() async {
@@ -408,15 +419,38 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
 
+   MaterialColor calendar = const MaterialColor(
+     0xFF0F4C81,
+    const <int, Color>{
+      50: const Color(0xFF0F4C81),
+      100: const Color(0xFF0F4C81),
+      200: const Color(0xFF0F4C81),
+      300: const Color(0xFF0F4C81),
+      400: const Color(0xFF0F4C81),
+      500: const Color(0xFF0F4C81),
+      600: const Color(0xFF0F4C81),
+      700: const Color(0xFF0F4C81),
+      800: const Color(0xFF0F4C81),
+      900: const Color(0xFF0F4C81),
+    },
+  );
+
   showDataPicker() async {
+
     final DateTime data = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2030),
+//      locale: Locale('pt'),
       builder: (BuildContext context, Widget child) {
         return Theme(
-          data: ThemeData.dark(),
+          data: ThemeData(
+            brightness: Brightness.dark,
+            primaryColor: hexToColor(),
+            accentColor: hexToColor(),
+            splashColor: hexToColor(),
+          ),
           child: child,
         );
       },
@@ -610,7 +644,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                   selectedDate = null;
                                   selectedTime = null;
                                   setState(() {
-                                    print('servico selecionado: ' + serviceValue);
+                                    print(
+                                        'servico selecionado: ' + serviceValue);
                                     selectedService = serviceValue;
                                   });
                                   getCalendars();
@@ -661,7 +696,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               setState(() {
                                 selectedEmployee = employeeValue;
                                 timeDurationService = 0;
-
                               });
                               findTimeDuration(selectedService);
                             },
@@ -781,8 +815,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       FloatingActionButton.extended(
-                        backgroundColor: Colors.blueAccent,
-                        label: Text('Agendar'),
+                        backgroundColor: hexToColor(),
+                        label: Text('Agendar', ),
                         icon: Icon(Icons.check),
                         elevation: 2.0,
                         onPressed: () {

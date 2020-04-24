@@ -18,8 +18,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final Color _cor1 = Color.fromARGB(255, 25, 25, 112);
-  final Color _cor2 = Color.fromARGB(255, 79, 79, 216);
+  final Color _cor1 = Color.fromARGB(255, 15, 76, 129);
+  final Color _cor2 = Color.fromARGB(255, 15, 76, 129);
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passController = TextEditingController();
@@ -124,18 +124,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       alignment: Alignment.center,
                       child: Column(
                         children: <Widget>[
-                          Icon(
-                            Icons.calendar_today,
-                            size: 90,
-                            color: Colors.white,
-                          ),
-                          Text(
-                            'Agendei',
-                            style: TextStyle(
-                                fontSize: 42.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          )
+                          Image.asset('lib/images/logo_thin.png'),
+//                          Icon(
+//                            Icons.calendar_today,
+//                            size: 90,
+//                            color: Colors.white,
+//                          ),
+//                          Text(
+//                            'Agendei',
+//                            style: TextStyle(
+//                                fontSize: 42.0,
+//                                fontWeight: FontWeight.bold,
+//                                color: Colors.white),
+//                          )
                         ],
                       )),
                   Spacer(),
